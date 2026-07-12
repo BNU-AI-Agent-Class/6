@@ -22,10 +22,15 @@ import httpx
 app = FastAPI(title="留学生情绪梳理 Agent", version="3.3.0")
 logger = logging.getLogger("agent.backend")
 
+# 生产环境通过 CORS_ORIGINS 指定允许的前端 origin，多个值用英文逗号分隔。
+# 未配置时保留本地开发兼容性；通配符模式下不允许携带浏览器凭据。
+_cors_raw = os.getenv("CORS_ORIGINS", "*")
+CORS_ORIGINS = [origin.strip() for origin in _cors_raw.split(",") if origin.strip()] or ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=CORS_ORIGINS != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
