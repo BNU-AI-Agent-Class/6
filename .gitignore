@@ -1,0 +1,15 @@
+# 环境变量（含 API key）
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# 本地联调产物
+.runlogs/
