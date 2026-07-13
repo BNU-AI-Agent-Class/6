@@ -9,8 +9,10 @@ assert(html.includes("我是 AI 情绪梳理伙伴"), "must disclose the AI iden
 assert(html.includes("对话会发送至服务端用于生成回复"), "must disclose how conversation data is used");
 assert(html.includes("全国统一心理援助热线 <strong>12356</strong>"), "must display the current national hotline");
 assert(!html.includes('const STORE_KEY = "bnu-agent-ui-v4"'), "must not load the previous failed session");
-assert(html.includes('const REQUIRED_BACKEND_VERSION = "3.3.0"'), "must reject stale backend processes");
+assert(html.includes('const REQUIRED_BACKEND_VERSION = "3.3.1"'), "must reject stale backend processes");
 assert(html.includes("ensureBackendVersion"), "must perform a backend version handshake before chat");
+assert(html.includes("emergency_help: emergencyHelp"), "must send the emergency button as a deterministic API flag");
+assert(html.includes('{ emergencyHelp: true }'), "emergency button must opt into the deterministic red path");
 assert(html.includes('message.role !== "user" && message.role !== "assistant"'), "must filter client roles");
 assert(html.includes("message.options && message.options.crisis"), "must filter old crisis assistant replies");
 assert(!html.includes('const note = "请优先联系真人支持'), "must not append a duplicate crisis card");

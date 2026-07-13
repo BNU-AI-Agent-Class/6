@@ -124,6 +124,21 @@ class SafetyBoundaryTests(unittest.TestCase):
         self.assertEqual("red", result["level"])
         self.assertEqual(2, result["escalation"])
 
+    def test_emergency_help_button_flag_is_deterministically_red(self):
+        response = TestClient(main.app).post(
+            "/api/chat",
+            json={
+                "messages": [{"role": "user", "content": "我现在需要紧急帮助。"}],
+                "emergency_help": True,
+            },
+        )
+        self.assertEqual(200, response.status_code)
+        body = response.json()
+        self.assertTrue(body["is_crisis"])
+        self.assertEqual("red", body["safety_light"])
+        self.assertEqual(2, body["escalation_level"])
+        self.assertIn("12356", body["reply"])
+
     def test_specific_plan_is_red_level_three(self):
         result = main.evaluate_safety("我今晚打算从楼上跳下去", [])
         self.assertEqual("red", result["level"])
@@ -141,7 +156,7 @@ class SafetyBoundaryTests(unittest.TestCase):
 
     def test_backend_version_matches_frontend_handshake(self):
         response = TestClient(main.app).get("/api/health")
-        self.assertEqual("3.3.0", response.json()["version"])
+        self.assertEqual("3.3.1", response.json()["version"])
 
     def test_old_crisis_assistant_reply_is_filtered_from_model_history(self):
         messages = [

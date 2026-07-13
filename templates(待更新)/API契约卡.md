@@ -7,9 +7,9 @@
 当前后端已经从本地 agent 装配结果服务化为 FastAPI 接口：
 
 - `GET /api/health`：健康检查，供本地调试和部署平台探活。
-- `POST /api/chat`：无状态对话接口，前端传 `messages`，后端注入 `agent.md + skills` 跑一轮回复。
+- `POST /api/chat`：无状态对话接口，前端传 `messages`；紧急帮助按钮额外传 `emergency_help=true`，后端确定性进入红灯。
 - key 只从后端环境变量读取，前端不需要也不能拿到 key。
-- 危机信号只由用户输入的确定性入口判定；c3 只审核 AI 回复是否越界，不合格回复会被丢弃并安全回退，但不会把用户改判成红灯。系统不再扫描 AI 回复来反推用户危机，避免安全提醒自触发红线。
+- 危机信号由用户输入的确定性入口或紧急帮助按钮的显式信号判定；c3 只审核 AI 回复是否越界，不合格回复会被丢弃并安全回退，但不会把普通用户输入改判成红灯。
 - 模型未配置或调用失败时返回 `fallback`，HTTP 仍为 200，避免前端白屏。
 
 ## 1. 基础信息
@@ -35,7 +35,7 @@ GET /api/health
 {
   "status": "ok",
   "model": "deepseek-chat",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "has_key": true
 }
 ```
@@ -65,7 +65,8 @@ Content-Type: application/json
       "role": "user",
       "content": "今天室友在食堂看到我了，没打招呼"
     }
-  ]
+  ],
+  "emergency_help": false
 }
 ```
 
@@ -101,6 +102,18 @@ Content-Type: application/json
 | `messages` | array | 是 | 对话历史，由前端维护并传入 |
 | `messages[].role` | string | 是 | 只能是 `"user"` 或 `"assistant"`；`"system"` 由后端保留并注入，客户端传入会被拒绝 |
 | `messages[].content` | string | 是 | 消息正文 |
+| `emergency_help` | boolean | 否 | 默认为 `false`；仅紧急帮助按钮传 `true`，后端立即返回确定性红灯转介 |
+
+### 紧急帮助按钮请求
+
+按钮不再依赖自然语言关键词猜测，而是发送显式信号：
+
+```json
+{
+  "messages": [{"role": "user", "content": "我现在需要紧急帮助。"}],
+  "emergency_help": true
+}
+```
 
 ## 4. 正常响应
 

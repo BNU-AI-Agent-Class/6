@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 
-app = FastAPI(title="留学生情绪梳理 Agent", version="3.3.0")
+app = FastAPI(title="留学生情绪梳理 Agent", version="3.3.1")
 logger = logging.getLogger("agent.backend")
 
 # 生产环境通过 CORS_ORIGINS 指定允许的前端 origin，多个值用英文逗号分隔。
@@ -73,6 +73,7 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
+    emergency_help: bool = False
 
 
 class ChatResponse(BaseModel):
@@ -472,7 +473,7 @@ async def safety_review(reply: str, user_msg: str, client: httpx.AsyncClient) ->
 # ========== API 路由 ==========
 @app.get("/api/health")
 def health() -> Dict[str, Any]:
-    return {"status": "ok", "model": MODEL, "version": "3.3.0", "has_key": bool(API_KEY)}
+    return {"status": "ok", "model": MODEL, "version": "3.3.1", "has_key": bool(API_KEY)}
 
 
 @app.post("/api/chat", response_model=ChatResponse)
@@ -489,8 +490,14 @@ async def chat(req: ChatRequest):
     # B2 无状态：历史由前端随 messages 带入，后端只从本次请求中推导观察窗口。
     crisis_history = build_crisis_history_from_messages(req.messages, last_user_index)
 
-    # 入口安全检测：四级判定 + 三级升级
-    safety = evaluate_safety(last_user_msg, crisis_history)
+    # “紧急帮助”按钮是用户主动求助动作，必须确定性进入红灯，不能交给文本猜测或模型。
+    if req.emergency_help:
+        safety = {
+            "level": "red", "escalation": 2,
+            "reason": "用户主动点击紧急帮助按钮", "matched_pattern": "emergency_help"
+        }
+    else:
+        safety = evaluate_safety(last_user_msg, crisis_history)
 
     # 三级：具体或迫近危险，立即转介真人与紧急服务。
     if safety["escalation"] == 3:

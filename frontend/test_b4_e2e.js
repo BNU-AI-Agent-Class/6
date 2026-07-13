@@ -25,6 +25,17 @@ async function send(page, text) {
   return page.locator(".message.assistant:not(.thinking)").last();
 }
 
+async function clickEmergency(page) {
+  const repliesBefore = await page.locator(".message.assistant:not(.thinking)").count();
+  await page.locator("#crisisButton").click();
+  await page.waitForFunction(
+    (count) => document.querySelectorAll(".message.assistant:not(.thinking)").length > count,
+    repliesBefore,
+    { timeout: 150000 }
+  );
+  return page.locator(".message.assistant:not(.thinking)").last();
+}
+
 async function main() {
   const browser = await chromium.launch({
     executablePath: EDGE_PATH,
@@ -49,13 +60,13 @@ async function main() {
     assert(!/12356|心理援助热线/.test(normalText), "普通倾诉错误出现热线");
 
     await desktop.locator("#newChat").click();
-    const crisis = await send(desktop, "我不想活了，我现在可能会伤害自己");
+    const crisis = await clickEmergency(desktop);
     const crisisText = await crisis.innerText();
-    assert(await crisis.evaluate((node) => node.classList.contains("crisis")), "明确危机未标红");
-    assert(crisisText.includes("12356"), "明确危机回复缺少 12356");
+    assert(await crisis.evaluate((node) => node.classList.contains("crisis")), "紧急帮助按钮未标红");
+    assert(crisisText.includes("12356"), "紧急帮助按钮回复缺少 12356");
     assert(pageErrors.length === 0, `桌面页面错误: ${pageErrors.join("; ")}`);
     await desktop.screenshot({ path: "..\\.runlogs\\b4-desktop.png", fullPage: true });
-    results.desktop = "normal_and_crisis_ok";
+    results.desktop = "normal_and_emergency_button_ok";
 
     const offline = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     await offline.route("**:8000/**", (route) => route.abort("failed"));
@@ -67,7 +78,7 @@ async function main() {
     assert(!(await fallback.evaluate((node) => node.classList.contains("crisis"))), "普通断线兜底被标红");
     assert(!fallbackText.includes("12356"), "普通断线兜底错误出现热线");
     await offline.locator("#newChat").click();
-    const crisisFallback = await send(offline, "我现在想伤害自己，需要紧急帮助");
+    const crisisFallback = await clickEmergency(offline);
     const crisisFallbackText = await crisisFallback.innerText();
     assert(await crisisFallback.evaluate((node) => node.classList.contains("crisis")), "断线时明确危机未标红");
     assert(crisisFallbackText.includes("12356"), "断线时明确危机缺少 12356");
