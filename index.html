@@ -987,7 +987,7 @@
     const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
     const BACKEND = location.protocol === "file:" || LOCAL_HOSTS.has(location.hostname)
       ? "http://localhost:8000" : PRODUCTION_BACKEND;
-    const REQUIRED_BACKEND_VERSION = "3.3.0";
+    const REQUIRED_BACKEND_VERSION = "3.3.1";
     const STORE_KEY = "bnu-agent-ui-v5";
     const FALLBACK_REPLY = "连接暂时中断了，这条消息还没能得到完整回应。你可以稍后重试，刚才写下的内容仍保存在当前对话中。";
     const CRISIS_FALLBACK_REPLY = "我现在无法连接后端。请先联系身边可信任的人、学校心理咨询中心或当地紧急服务；如果你在中国，也可以拨打全国统一心理援助热线 12356。";
@@ -1262,7 +1262,7 @@
       if (data.version !== REQUIRED_BACKEND_VERSION) throw new Error("stale-backend");
     }
 
-    async function sendMessage(text) {
+    async function sendMessage(text, { emergencyHelp = false } = {}) {
       const content = text.trim();
       if (!content || sending) return;
 
@@ -1280,7 +1280,10 @@
         const response = await fetch(BACKEND + "/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: buildRequestMessages(conversation) })
+          body: JSON.stringify({
+            messages: buildRequestMessages(conversation),
+            emergency_help: emergencyHelp
+          })
         });
 
         if (!response.ok) throw new Error("chat failed");
@@ -1301,7 +1304,7 @@
 
       } catch (error) {
         thinkingMessage.remove();
-        const localCrisis = isExplicitLocalCrisis(content);
+        const localCrisis = emergencyHelp || isExplicitLocalCrisis(content);
         const fallback = error.message === "stale-backend"
           ? STALE_BACKEND_REPLY
           : localCrisis ? CRISIS_FALLBACK_REPLY : FALLBACK_REPLY;
@@ -1328,7 +1331,7 @@
     });
 
     crisisButton.addEventListener("click", () => {
-      sendMessage("我现在很难受，撑不下去了，需要紧急帮助。");
+      sendMessage("我现在需要紧急帮助。", { emergencyHelp: true });
     });
 
     document.querySelectorAll(".quick-btn").forEach((button) => {
