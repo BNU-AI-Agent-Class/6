@@ -894,7 +894,7 @@
             <button class="send-btn" id="sendButton" type="submit">发送</button>
           </form>
         </div>
-        <div class="helper">本工具不替代专业心理支持。若现在有伤害自己或无法保证安全的感觉，请立刻联系身边真人或当地紧急服务。</div>
+        <div class="helper"><strong>AI 与隐私：</strong>我是 AI 情绪梳理伙伴，不能替代专业心理或医疗帮助。对话会发送至服务端用于生成回复，并保存在你的浏览器中；无需提供真实身份，请勿输入敏感个人信息。若有迫近危险，请立即联系身边真人和当地紧急服务；中国境内可拨全国统一心理援助热线 <strong>12356</strong>。</div>
       </section>
     </main>
   </div>
@@ -983,8 +983,10 @@
   </div>
 
   <script>
-    const BACKEND_HOST = location.protocol === "file:" ? "localhost" : location.hostname;
-    const BACKEND = `http://${BACKEND_HOST}:8000`;
+    const PRODUCTION_BACKEND = "https://bnu-agent-6.onrender.com";
+    const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
+    const BACKEND = location.protocol === "file:" || LOCAL_HOSTS.has(location.hostname)
+      ? "http://localhost:8000" : PRODUCTION_BACKEND;
     const REQUIRED_BACKEND_VERSION = "3.3.0";
     const STORE_KEY = "bnu-agent-ui-v5";
     const FALLBACK_REPLY = "连接暂时中断了，这条消息还没能得到完整回应。你可以稍后重试，刚才写下的内容仍保存在当前对话中。";

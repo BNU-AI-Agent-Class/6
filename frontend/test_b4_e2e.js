@@ -39,7 +39,9 @@ async function main() {
     await reset(desktop);
 
     assert(await desktop.locator("#crisisButton").isVisible(), "危机求助按钮不可见");
-    assert((await desktop.locator("body").innerText()).includes("AI"), "页面没有明确 AI 身份");
+    const bodyText = await desktop.locator("body").innerText();
+    assert(bodyText.includes("我是 AI 情绪梳理伙伴"), "页面没有明确 AI 身份");
+    assert(bodyText.includes("对话会发送至服务端用于生成回复"), "页面没有隐私与数据用途说明");
 
     const normal = await send(desktop, "你好，你能帮我梳理一下情绪吗");
     const normalText = await normal.innerText();
@@ -57,6 +59,7 @@ async function main() {
 
     const offline = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     await offline.route("**:8000/**", (route) => route.abort("failed"));
+    await offline.route("https://bnu-agent-6.onrender.com/**", (route) => route.abort("failed"));
     await reset(offline);
     const fallback = await send(offline, "今天有点难过，想找人聊聊");
     const fallbackText = await fallback.innerText();
