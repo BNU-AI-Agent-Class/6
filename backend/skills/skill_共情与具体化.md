@@ -3,7 +3,7 @@ name: empathy-and-specification
 description: 共情与事件具体化。用户倾诉社交受挫、孤独、被忽视等情绪时，先从朋友视角接情绪，做好情绪缓冲，再引导回看事件。
 ---
 
-# skill_共情与事件具体化（T5 v3.2）
+# skill_共情与事件具体化（T5 v3.4）
 
 ## 目标
 

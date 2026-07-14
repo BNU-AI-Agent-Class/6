@@ -20,7 +20,7 @@
 | 协议 | 本地 HTTP；上线后 HTTPS |
 | 后端框架 | FastAPI |
 | 默认启动命令 | `uvicorn main:app --reload --port 8000` |
-| CORS | 当前开发阶段允许所有来源；上线后可收窄为前端域名 |
+| CORS | 从 `CORS_ORIGINS` 读取；默认允许本地调试与课程 GitHub Pages origin，不使用通配符 |
 | 认证 | B2 阶段暂不做用户登录；模型 key 只在后端环境变量中 |
 
 ## 2. 接口一：健康检查
@@ -34,8 +34,8 @@ GET /api/health
 ```json
 {
   "status": "ok",
-  "model": "deepseek-chat",
-  "version": "3.3.1",
+  "model": "deepseek/deepseek-v4-flash",
+  "version": "3.4.0",
   "has_key": true
 }
 ```
@@ -123,7 +123,7 @@ Content-Type: application/json
   "is_crisis": false,
   "escalation_level": 0,
   "safety_light": "green",
-  "model": "deepseek-chat",
+  "model": "deepseek/deepseek-v4-flash",
   "stage": "具体化事件"
 }
 ```
@@ -162,7 +162,7 @@ Content-Type: application/json
 
 ```json
 {
-  "reply": "谢谢你直接告诉我。现在先不用解释细节，我会继续听你说。\n\n为了让你此刻不必一个人扛着，你能不能先联系一位就在身边或能马上接电话的人？如果你在中国，也可以拨打全国统一心理援助热线 12356；如果危险正在逼近，请联系当地紧急服务。",
+  "reply": "谢谢你直接告诉我。现在先不用解释细节，我会继续听你说。我是 AI，不能提供紧急救援或替代真人支持。\n\n为了让你此刻不必一个人扛着，你能不能先联系一位就在身边或能马上接电话的人？如果你在中国，也可以拨打全国统一心理援助热线 12356；如果危险正在逼近，请联系当地紧急服务。",
   "is_crisis": true,
   "escalation_level": 2,
   "safety_light": "red",
@@ -177,7 +177,7 @@ Content-Type: application/json
 
 ```json
 {
-  "reply": "谢谢你告诉我。现在最重要的是让你不要独自面对接下来的几分钟。\n\n请立即联系身边可信任的人并联系当地紧急服务；如果你在中国，也可以拨打全国统一心理援助热线 12356。你不用向我描述方法，只要先告诉我：现在有没有一个人可以马上来到你身边？",
+  "reply": "谢谢你告诉我。现在最重要的是让你不要独自面对接下来的几分钟。我是 AI，不能提供紧急救援或替代真人支持。\n\n请立即联系身边可信任的人并联系当地紧急服务；如果你在中国，也可以拨打全国统一心理援助热线 12356。你不用向我描述方法，只要先告诉我：现在有没有一个人可以马上来到你身边？",
   "is_crisis": true,
   "escalation_level": 3,
   "safety_light": "red",
@@ -251,7 +251,8 @@ Content-Type: application/json
 | `DEEPSEEK_API_KEY` | 三选一 | DeepSeek API key | `YOUR_DEEPSEEK_API_KEY` |
 | `OPENAI_API_KEY` | 三选一 | OpenAI 兼容 API key | `YOUR_OPENAI_API_KEY` |
 | `LLM_BASE_URL` | 否 | OpenAI 兼容接口 base URL | `https://openrouter.ai/api/v1` |
-| `LLM_MODEL` | 否 | 模型名 | `deepseek-chat` |
+| `LLM_MODEL` | 否 | 模型名 | `deepseek/deepseek-v4-flash` |
+| `SAFETY_REVIEW_MODEL` | 否 | 出口复核模型；留空时使用 LLM_MODEL 的独立请求 | `deepseek/deepseek-v4-flash` |
 | `MODEL` | 否 | `LLM_MODEL` 的兼容别名 | OpenRouter 默认 `deepseek/deepseek-v4-flash` |
 
 ## 10. 前端调用示例
@@ -283,9 +284,9 @@ console.log(data.safety_light, data.is_crisis, data.stage);
 | key 走环境变量 | 通过 | 读取 `OPENROUTER_API_KEY`、`DEEPSEEK_API_KEY`、`OPENAI_API_KEY` |
 | 前端不需要传 system prompt | 通过 | 后端自动注入 `agent.md + skills` |
 | 去掉 bash 等危险工具 | 通过 | 后端无用户可达 shell 工具 |
-| CORS 已开启 | 通过 | 当前开发阶段允许所有来源 |
+| CORS 已开启 | 通过 | `CORS_ORIGINS` 限制本地与 Pages origin，不使用 `*` |
 | 模型失败有 fallback | 通过 | key 缺失或模型调用失败均返回 `model:"fallback"` |
-| 危机输入确定性拦截 | 通过 | `evaluate_safety()` 仅判断用户消息；c3 复核 AI 回复是否越界，不用 AI 回复反推用户红线 |
+| 危机输入确定性拦截 | 通过 | 入口确定性判断最新用户消息；出口独立检查最新用户原话与 AI 回复，可补捉遗漏风险，异常时 fail-closed |
 | API 契约卡已填完 | 通过 | 本文件即 B2 产出物 |
 
 ---

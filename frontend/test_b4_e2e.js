@@ -52,7 +52,10 @@ async function main() {
     assert(await desktop.locator("#crisisButton").isVisible(), "危机求助按钮不可见");
     const bodyText = await desktop.locator("body").innerText();
     assert(bodyText.includes("我是 AI 情绪梳理伙伴"), "页面没有明确 AI 身份");
-    assert(bodyText.includes("对话会发送至服务端用于生成回复"), "页面没有隐私与数据用途说明");
+    assert(
+      bodyText.includes("对话会经过本项目后端并交给其配置的模型服务商"),
+      "页面没有完整披露后端与模型服务商数据路径"
+    );
 
     const normal = await send(desktop, "你好，你能帮我梳理一下情绪吗");
     const normalText = await normal.innerText();

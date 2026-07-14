@@ -3,7 +3,7 @@ name: perspective-expand-and-action
 description: 多元视角扩展与小行动提取。不替用户做诊断或判断，提供替代解释，强化用户自身优势，仅在用户愿意时提取低压力社交动作。
 ---
 
-# skill_多元视角与小行动提取（T5 v3.2）
+# skill_多元视角与小行动提取（T5 v3.4）
 
 ## 目标
 

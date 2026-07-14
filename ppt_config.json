@@ -1,0 +1,181 @@
+{
+  "_comment": "=== PPT 配置文件 === 编辑这个文件来定义你的 PPT 结构",
+  "_usage": "填写 meta 和 slides 后，运行: python generate_ppt.py ppt_config.json",
+
+  "meta": {
+    "title": "我的 PPT 标题",
+    "style": "A",
+    "_style_note": "A = 电子杂志风(衬线+暖色), B = 瑞士国际主义风(无衬线+网格)",
+    "theme": "墨水经典",
+    "_theme_options_A": "墨水经典 / 靛蓝瓷 / 森林墨 / 牛皮纸 / 沙丘",
+    "_theme_options_B": "克莱因蓝IKB / 柠檬黄 / 柠檬绿 / 安全橙",
+    "output_dir": "ppt_output"
+  },
+
+  "slides": [
+    {
+      "_comment": "=== 第1页: 开场封面 ===",
+      "type": "cover",
+      "chrome_left": "A Talk · 2026.07.12",
+      "chrome_right": "Vol.01",
+      "kicker": "分享主题标签",
+      "title": "主标题",
+      "subtitle": "副标题",
+      "lead": "一段吸引人的描述，说明这次分享的核心要点。",
+      "author": "作者名 · 身份",
+      "foot_left": "一场关于 XX 的分享",
+      "foot_right": "— 2026 —"
+    },
+    {
+      "_comment": "=== 第2页: 数据大字报 (6个数据卡片) ===",
+      "type": "big_numbers",
+      "chrome_left": "数据篇 · 核心指标",
+      "chrome_right": "Act I · 02 / 10",
+      "kicker": "先看数字，再谈方法。",
+      "title": "关键数据",
+      "subtitle": "过去半年的核心成果。",
+      "foot_left": "数据截止 · 2026.07",
+      "foot_right": "Act I · Numbers",
+      "stats": [
+        { "label": "Users", "number": "50K+", "note": "累计注册用户" },
+        { "label": "DAU", "number": "8.2K", "note": "日均活跃用户" },
+        { "label": "Revenue", "number": "120M", "note": "年营收 (¥)" },
+        { "label": "NPS", "number": "72", "note": "净推荐值" },
+        { "label": "Teams", "number": "340+", "note": "企业客户" },
+        { "label": "Uptime", "number": "99.9%", "note": "服务可用率" }
+      ]
+    },
+    {
+      "_comment": "=== 第3页: 左文右图 (一句话金句 + 配图) ===",
+      "type": "quote_image",
+      "chrome_left": "身份反差 · The Twist",
+      "chrome_right": "03 / 10",
+      "kicker": "BUT",
+      "title": "我们不是XX公司。",
+      "lead": "过去三年做的是另一件事。",
+      "callout_text": "真正的壁垒不在技术，\n在于对场景的理解。",
+      "callout_source": "— 一位行业观察者",
+      "image": "images/03-twist.png",
+      "image_caption": "产品截图",
+      "foot_left": "Page 03 · 身份反差",
+      "foot_right": "— · —"
+    },
+    {
+      "_comment": "=== 第4页: 章节幕封 ===",
+      "type": "divider",
+      "chrome_left": "第二幕 · 方法论",
+      "chrome_right": "Act II · 04 / 10",
+      "kicker": "Act II",
+      "title": "方法论",
+      "lead": "怎么做到的？拆解核心逻辑。",
+      "theme": "hero light",
+      "foot_left": "第二幕引子",
+      "foot_right": "— · —"
+    },
+    {
+      "_comment": "=== 第5页: 流水线 (多步骤流程) ===",
+      "type": "pipeline",
+      "chrome_left": "工作流 · Workflow",
+      "chrome_right": "Act II · 05 / 10",
+      "kicker": "Pipeline · 流水线",
+      "title": "我们的工作流",
+      "foot_left": "Page 05 · 工作流",
+      "foot_right": "Workflow",
+      "pipelines": [
+        {
+          "label": "第一阶段 · 调研",
+          "steps": [
+            { "title": "Research", "desc": "市场调研与竞品分析" },
+            { "title": "Define", "desc": "定义核心问题与假设" },
+            { "title": "Design", "desc": "方案设计与原型验证" }
+          ]
+        },
+        {
+          "label": "第二阶段 · 落地",
+          "steps": [
+            { "title": "Build", "desc": "工程实现与测试" },
+            { "title": "Launch", "desc": "灰度发布与监控" },
+            { "title": "Iterate", "desc": "数据驱动持续迭代" }
+          ]
+        }
+      ]
+    },
+    {
+      "_comment": "=== 第6页: 图片网格 (2x3 六图展示) ===",
+      "type": "image_grid",
+      "chrome_left": "实证 · Evidence",
+      "chrome_right": "06 / 10",
+      "kicker": "Proof · 证据",
+      "title": "效果展示",
+      "foot_left": "Page 06 · 实证",
+      "foot_right": "Evidence",
+      "images": [
+        { "src": "images/06-a.png", "caption": "截图一" },
+        { "src": "images/06-b.png", "caption": "截图二" },
+        { "src": "images/06-c.png", "caption": "截图三" },
+        { "src": "images/06-d.png", "caption": "截图四" },
+        { "src": "images/06-e.png", "caption": "截图五" },
+        { "src": "images/06-f.png", "caption": "截图六" }
+      ]
+    },
+    {
+      "_comment": "=== 第7页: 大引用 ===",
+      "type": "big_quote",
+      "chrome_left": "金句 · Takeaway",
+      "chrome_right": "07 / 10",
+      "kicker": "Quote · 金句",
+      "quote_cn": "最好的产品，\n是让用户感觉不到产品存在。",
+      "quote_en": "The best product is the one you don't notice.",
+      "source": "— 某产品大师 · 2026",
+      "foot_left": "Page 07 · 金句",
+      "foot_right": "— · —"
+    },
+    {
+      "_comment": "=== 第8页: 并列对比 (Before/After) ===",
+      "type": "compare",
+      "chrome_left": "旧 vs 新 · The Shift",
+      "chrome_right": "08 / 10",
+      "kicker": "Before / After · 范式转变",
+      "title": "从 A 到 B",
+      "before": {
+        "label": "Before · 旧模式",
+        "title": "传统方式",
+        "items": ["流程繁琐，多人协作", "信息传递损耗严重", "迭代周期以周为单位", "决策链路长"]
+      },
+      "after": {
+        "label": "After · 新模式",
+        "title": "新范式",
+        "items": ["自动化流程，单人即团队", "信息直达，零损耗", "迭代周期以小时为单位", "决策扁平化"]
+      },
+      "foot_left": "Page 08 · 范式转变",
+      "foot_right": "Before / After"
+    },
+    {
+      "_comment": "=== 第9页: 悬念问题页 ===",
+      "type": "question",
+      "chrome_left": "留给你的问题",
+      "chrome_right": "09 / 10",
+      "kicker": "The Question",
+      "title_lines": ["你的行业里，", "哪些事情本来", "就不该由人来做？"],
+      "lead": "这不是一个技术问题，是一个认知问题。",
+      "foot_left": "Page 09 · The Question",
+      "foot_right": "— · —"
+    },
+    {
+      "_comment": "=== 第10页: 图文混排 (大段文字 + 小配图) ===",
+      "type": "mixed",
+      "chrome_left": "设计先行 · Design First",
+      "chrome_right": "10 / 10",
+      "kicker": "Phase 01 · 设计阶段",
+      "title": "设计先行 · 2 周",
+      "lead": "在 Figma 中完成视觉探索与设计系统。",
+      "body": "两周之内，视觉风格、粗略结构、方向性内容全部稳定。这是扎实的传统设计流程。",
+      "callout_text": "This phase was pretty standard.\nJust a solid design process.",
+      "callout_source": "— 设计负责人",
+      "image": "images/10-design.png",
+      "image_caption": "Figma · Design System",
+      "foot_left": "Page 10 · Design First",
+      "foot_right": "约 2 周"
+    }
+  ]
+}
