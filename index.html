@@ -894,7 +894,7 @@
             <button class="send-btn" id="sendButton" type="submit">发送</button>
           </form>
         </div>
-        <div class="helper"><strong>AI 与隐私：</strong>我是 AI 情绪梳理伙伴，不能替代专业心理或医疗帮助。对话会发送至服务端用于生成回复，并保存在你的浏览器中；无需提供真实身份，请勿输入敏感个人信息。若有迫近危险，请立即联系身边真人和当地紧急服务；中国境内可拨全国统一心理援助热线 <strong>12356</strong>。</div>
+        <div class="helper"><strong>AI 与隐私：</strong>我是 AI 情绪梳理伙伴，不能替代专业心理或医疗帮助。每次发送时，对话会经过本项目后端并交给其配置的模型服务商生成回复；本地副本保存在当前浏览器，可在“设置—存储”中永久清除。无需提供真实身份，请勿输入敏感个人信息。若有迫近危险，请立即联系身边真人和当地紧急服务；中国境内可拨全国统一心理援助热线 <strong>12356</strong>。</div>
       </section>
     </main>
   </div>
@@ -958,8 +958,14 @@
           </div>
         </div>
         <div class="field">
-          <label>已删除记录的备份</label>
+          <label>本地回收站（仍保存在此浏览器）</label>
           <div class="backup-list" id="deletedBackupList"></div>
+          <button class="secondary-btn" id="purgeDeleted" type="button">永久清空回收站</button>
+        </div>
+        <div class="field">
+          <label>全部本地数据</label>
+          <button class="secondary-btn" id="purgeAllLocalData" type="button">永久清除全部本地对话与设置</button>
+          <div class="meta">此操作只清除当前浏览器中的数据，无法撤销。</div>
         </div>
       </section>
 
@@ -987,7 +993,7 @@
     const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
     const BACKEND = location.protocol === "file:" || LOCAL_HOSTS.has(location.hostname)
       ? "http://localhost:8000" : PRODUCTION_BACKEND;
-    const REQUIRED_BACKEND_VERSION = "3.3.1";
+    const REQUIRED_BACKEND_VERSION = "3.4.0";
     const STORE_KEY = "bnu-agent-ui-v5";
     const FALLBACK_REPLY = "连接暂时中断了，这条消息还没能得到完整回应。你可以稍后重试，刚才写下的内容仍保存在当前对话中。";
     const CRISIS_FALLBACK_REPLY = "我现在无法连接后端。请先联系身边可信任的人、学校心理咨询中心或当地紧急服务；如果你在中国，也可以拨打全国统一心理援助热线 12356。";
@@ -1011,6 +1017,8 @@
     const emojiPanel = document.getElementById("emojiPanel");
     const exportChat = document.getElementById("exportChat");
     const deletedBackupList = document.getElementById("deletedBackupList");
+    const purgeDeletedButton = document.getElementById("purgeDeleted");
+    const purgeAllLocalDataButton = document.getElementById("purgeAllLocalData");
     const aiNameInput = document.getElementById("aiNameInput");
     const userNameInput = document.getElementById("userNameInput");
     const fontSizeInput = document.getElementById("fontSizeInput");
@@ -1171,8 +1179,8 @@
         const trash = document.createElement("button");
         trash.className = "trash-btn";
         trash.type = "button";
-        trash.title = "删除对话";
-        trash.setAttribute("aria-label", "删除对话");
+        trash.title = "移入本地回收站";
+        trash.setAttribute("aria-label", "移入本地回收站");
         trash.textContent = "🗑";
         trash.addEventListener("click", () => deleteConversation(conversation.id));
 
@@ -1187,7 +1195,7 @@
       if (state.deleted.length === 0) {
         const empty = document.createElement("div");
         empty.className = "backup-item";
-        empty.textContent = "暂无已删除记录备份";
+        empty.textContent = "回收站为空";
         deletedBackupList.appendChild(empty);
         return;
       }
@@ -1225,6 +1233,25 @@
       saveState();
       renderCurrentConversation();
       renderDeletedBackups();
+    }
+
+    function purgeDeletedConversations() {
+      if (state.deleted.length === 0) return;
+      if (!window.confirm("永久清空本地回收站？此操作无法撤销。")) return;
+      state.deleted = [];
+      saveState();
+      renderDeletedBackups();
+    }
+
+    function purgeAllLocalData() {
+      if (!window.confirm("永久清除当前浏览器中的全部对话、回收站与设置？此操作无法撤销。")) return;
+      localStorage.removeItem(STORE_KEY);
+      state = JSON.parse(JSON.stringify(defaultState));
+      createConversation();
+      applySettings();
+      renderCurrentConversation();
+      renderDeletedBackups();
+      settingsModal.classList.remove("open");
     }
 
     function startNewConversation() {
@@ -1387,6 +1414,9 @@
       link.click();
       URL.revokeObjectURL(url);
     });
+
+    purgeDeletedButton.addEventListener("click", purgeDeletedConversations);
+    purgeAllLocalDataButton.addEventListener("click", purgeAllLocalData);
 
     aiNameInput.addEventListener("input", () => {
       state.settings.aiName = aiNameInput.value.trim() || "情绪梳理伙伴";
